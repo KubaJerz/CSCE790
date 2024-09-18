@@ -8,4 +8,34 @@ The full equation is as such (W H)to transfrom inputs to the message then that t
 Then we multiply do the Diagonal Matrix D which denotes the num neibrs the node has to make the avg and finaly we pass it thorough a non linearity. 
 
 
+In our test network we have a node 1 and a node 2 connected so node one shoudl be updated with the avg of its valeus and the values of node 2. Node 1 [0,1]. Node 2 [2,3] and the update value of Node 1 after messge passing is [1,2]
+
+Now that was graph convolution but there is another flavor of graph NN called Graph Attention
+
+So here again we want to aggrigate information from the nearby nodes but we try to improve this useing attention.
+
+so we need to get the attention score for each of the neighbor nodes that is calculated by: multiplying the center node and the neiborh node each by the weight matrix to transform the featurs then we concacnate the results and then multiply yhtat by another leadned vector adnthen pas though a leakyRelu 
+now that we jave that attention score between the node and its neighbor we calculate that again for all the neighbor nodes.
+now given that we have the attention scores. then we softmax it to normalize.
+So now weupdate our vector embedding similary as we did in the convolution GNN but here we multiply each neighbor node by a weight matriz and the attention scores we jsut calculated then we summ and pass through results
+
+Again we test out out forward pass to make sure it works:  we have a node 1 and a node 2 connected so node one shoudl be updated with the new weight accoring to the attention.  Node 1 [0,1]. Node 2 [2,3] and the update value of Node 1 after messge passing is [1.2913, 1.98] which makes sense for the atteions between thes nodes. [0.3543(self), 0.6457(other), 0, 0]
+
+Now that we got the basics of the Conv and Attention GNN we will use an optimized library to make a bigger one.
+
+So now to test out these models we use the Cora Dataset where the goal is to classify the publication into one of 7 classes and each publication has a vector f values representing if that word(index in the vector) is present in the publication. But we also have links for which publication refrances other publications.
+Here her create a base MLP model for the basline comparason and with a Node-level Graph NN model
+After training we see while the MLP is great at memorizing the GNN has significanlty better val and test results. meaning that the prior/restriction we impose by seting it up in a GNN is informative and helpful for this task.
+
+Now what if we eanted to do Edge level tasks?
+ 
+and this is possible where you can compare the similarybetween nodes and then predict 1 (yes) or 0(no) there shoudl be and edge between the nodes.
+
+The last idea discused is tasks on the Graph level
+
+so we import the dataset and check for if the classes are balanced in the datset. 
+a possible issue with graph structure data is that it can be often oddly shaped. but the dataloader in torch geometric has a solution where we treate it like a big "concatonated" edge and noe list but there is no edge between each graph in effecct giving us the same result.
+
+We define a GNN as we did earlyer but we use a pre trained model from pytorch. the forward pass is passing ht e node and edges through the GNNModel but to get a graph level represetion we then do  global mean pooling then we pass through a final linear layer to do the predictions.
+
 
