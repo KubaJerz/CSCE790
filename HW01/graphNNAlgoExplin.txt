@@ -1,4 +1,11 @@
 Explination of Graph NN and its Algo:
 
 First and formost we need a way to represent the structure of the graph so for that we use an Adjecey Matrix. 
+Now what is in each of the nodes? For that each node has a feature vector that represents the message it would like to pass.
+Next each node will pass its information to the adjacent matrixes. What if a node recives many message? How do we combine?
+That can be done many ways like taking the sum or avg or mean. In our code we will Avg.
+The full equation is as such (W H)to transfrom inputs to the message then that time the adjacecy matrix (A+I) so we now send our own message also to ourself.
+Then we multiply do the Diagonal Matrix D which denotes the num neibrs the node has to make the avg and finaly we pass it thorough a non linearity. 
+
+
 
