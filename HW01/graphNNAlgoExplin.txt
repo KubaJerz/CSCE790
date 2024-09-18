@@ -1,0 +1,4 @@
+Explination of Graph NN and its Algo:
+
+First and formost we need a way to represent the structure of the graph so for that we use an Adjecey Matrix. 
+
