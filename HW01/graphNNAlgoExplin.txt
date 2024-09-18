@@ -1,41 +1,30 @@
-Explination of Graph NN and its Algo:
+First and foremost, we need a way to represent the structure of the graph, so for that, we use an Adjacency Matrix. Now, what is in each of the nodes? Each node has a feature vector that represents the message it would like to pass. Next, each node will pass its information to the adjacent matrices. What if a node receives many messages? How do we combine them? That can be done in many ways, like taking the sum, average, or mean. In our code, we will use the average.
 
-First and formost we need a way to represent the structure of the graph so for that we use an Adjecey Matrix. 
-Now what is in each of the nodes? For that each node has a feature vector that represents the message it would like to pass.
-Next each node will pass its information to the adjacent matrixes. What if a node recives many message? How do we combine?
-That can be done many ways like taking the sum or avg or mean. In our code we will Avg.
-The full equation is as such (W H)to transfrom inputs to the message then that time the adjacecy matrix (A+I) so we now send our own message also to ourself.
-Then we multiply do the Diagonal Matrix D which denotes the num neibrs the node has to make the avg and finaly we pass it thorough a non linearity. 
+\vspace{12pt} % This adds a line of white space
 
+The full equation is as such: 
+\[
+(W H)
+\]
+to transform inputs to the message, then multiply that by the adjacency matrix 
+\[
+(A+I)
+\]
+so we now send our own message also to ourselves. Then we multiply by the Diagonal Matrix \(D\), which denotes the number of neighbors the node has, to make the average, and finally, we pass it through a non-linearity. In our test network, we have node 1 and node 2 connected, so node one should be updated with the average of its values and the values of node 2. Node 1 \([0,1]\), Node 2 \([2,3]\), and the updated value of Node 1 after message passing is \([1,2]\).
 
-In our test network we have a node 1 and a node 2 connected so node one shoudl be updated with the avg of its valeus and the values of node 2. Node 1 [0,1]. Node 2 [2,3] and the update value of Node 1 after messge passing is [1,2]
+\vspace{12pt} % This adds a line of white space
 
-Now that was graph convolution but there is another flavor of graph NN called Graph Attention
+Now, that was graph convolution, but there is another flavor of Graph NN called Graph Attention. Here, we want to aggregate information from the nearby nodes, but we try to improve this using attention. We need to get the attention score for each of the neighbor nodes, which is calculated by multiplying the center node and the neighbor node, each by the weight matrix to transform the features. Then, we concatenate the results and multiply that by another learned vector and then pass it through a leaky ReLU. Now that we have the attention score between the node and its neighbor, we calculate that again for all the neighbor nodes.
 
-So here again we want to aggrigate information from the nearby nodes but we try to improve this useing attention.
+Given that we have the attention scores, we softmax them to normalize. Now, we update our vector embedding similarly as we did in the convolution GNN, but here we multiply each neighbor node by a weight matrix and the attention scores we just calculated. Then we sum and pass through the results. Again, we test our forward pass to make sure it works: we have node 1 and node 2 connected, so node one should be updated with the new weight according to the attention. Node 1 \([0,1]\), Node 2 \([2,3]\), and the updated value of Node 1 after message passing is \([1.2913, 1.98]\), which makes sense for the attention between these nodes: \([0.3543 (\text{self}), 0.6457 (\text{other})]\).
 
-so we need to get the attention score for each of the neighbor nodes that is calculated by: multiplying the center node and the neiborh node each by the weight matrix to transform the featurs then we concacnate the results and then multiply yhtat by another leadned vector adnthen pas though a leakyRelu 
-now that we jave that attention score between the node and its neighbor we calculate that again for all the neighbor nodes.
-now given that we have the attention scores. then we softmax it to normalize.
-So now weupdate our vector embedding similary as we did in the convolution GNN but here we multiply each neighbor node by a weight matriz and the attention scores we jsut calculated then we summ and pass through results
+\vspace{12pt} % This adds a line of white space
+Now that we have the basics of the Convolution and Attention GNN, we will use an optimized library to make a larger model. To test these models, we use the Cora Dataset, where the goal is to classify the publication into one of 7 classes. Each publication has a vector of values representing whether that word (index in the vector) is present in the publication. But we also have links for which publication references other publications. Here, we create a base MLP model for baseline comparison and a Node-level Graph NN model. After training, we see that while the MLP is great at memorizing, the GNN has significantly better validation and test results, meaning that the prior/restriction we impose by setting it up in a GNN is informative and helpful for this task.
 
-Again we test out out forward pass to make sure it works:  we have a node 1 and a node 2 connected so node one shoudl be updated with the new weight accoring to the attention.  Node 1 [0,1]. Node 2 [2,3] and the update value of Node 1 after messge passing is [1.2913, 1.98] which makes sense for the atteions between thes nodes. [0.3543(self), 0.6457(other), 0, 0]
+\vspace{12pt} % This adds a line of white space
+Now, what if we wanted to do edge-level tasks? This is possible, where you can compare the similarity between nodes and then predict 1 (yes) or 0 (no) for whether there should be an edge between the nodes.
 
-Now that we got the basics of the Conv and Attention GNN we will use an optimized library to make a bigger one.
-
-So now to test out these models we use the Cora Dataset where the goal is to classify the publication into one of 7 classes and each publication has a vector f values representing if that word(index in the vector) is present in the publication. But we also have links for which publication refrances other publications.
-Here her create a base MLP model for the basline comparason and with a Node-level Graph NN model
-After training we see while the MLP is great at memorizing the GNN has significanlty better val and test results. meaning that the prior/restriction we impose by seting it up in a GNN is informative and helpful for this task.
-
-Now what if we eanted to do Edge level tasks?
- 
-and this is possible where you can compare the similarybetween nodes and then predict 1 (yes) or 0(no) there shoudl be and edge between the nodes.
-
-The last idea discused is tasks on the Graph level
-
-so we import the dataset and check for if the classes are balanced in the datset. 
-a possible issue with graph structure data is that it can be often oddly shaped. but the dataloader in torch geometric has a solution where we treate it like a big "concatonated" edge and noe list but there is no edge between each graph in effecct giving us the same result.
-
-We define a GNN as we did earlyer but we use a pre trained model from pytorch. the forward pass is passing ht e node and edges through the GNNModel but to get a graph level represetion we then do  global mean pooling then we pass through a final linear layer to do the predictions.
+\vspace{12pt} % This adds a line of white space
+The last idea discussed is tasks on the Graph level. We import the dataset and check if the classes are balanced. A possible issue with graph-structured data is that it can often be oddly shaped, but the dataloader in Torch Geometric has a solution where we treat it like a big ``concatenated" edge and node list, but there is no edge between each graph, in effect giving us the same result. We define a GNN as we did earlier, but we use a pre-trained model from PyTorch. The forward pass involves passing the nodes and edges through the GNN Model, but to get a graph-level representation, we then do global mean pooling. Finally, we pass through a linear layer to make the predictions.
 
 
